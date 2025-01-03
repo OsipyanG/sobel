@@ -39,7 +39,7 @@ func BenchmarkRunWorkerPool(b *testing.B) {
 	}
 
 	// List of worker counts to benchmark
-	workerCounts := []int{1, 2, 4, 8, 16, 32}
+	workerCounts := []int{1, 2, 4, 8, 10, 16, 32, 64, 128, 256, 512, 1024}
 
 	for _, numWorkers := range workerCounts {
 		b.Run("Workers_"+strconv.Itoa(numWorkers), func(b *testing.B) {
