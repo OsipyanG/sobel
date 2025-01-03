@@ -11,23 +11,21 @@ type SobelTask struct {
 	EndRow   int
 }
 
-func worker(tasks chan SobelTask, results chan struct{}, imgData *img.ImageData) {
+func worker(tasks chan SobelTask, imgData *img.ImageData) {
 	for task := range tasks {
 		sobel.ApplySobel(imgData, task.StartRow, task.EndRow)
-		results <- struct{}{}
 	}
 }
 
 func RunWorkerPool(numWorkers int, imgData *img.ImageData) {
 	tasks := make(chan SobelTask, numWorkers)
-	results := make(chan struct{}, numWorkers)
 
 	wg := sync.WaitGroup{}
+	wg.Add(numWorkers)
 
 	for i := 0; i < numWorkers; i++ {
-		wg.Add(1)
 		go func() {
-			worker(tasks, results, imgData)
+			worker(tasks, imgData)
 			wg.Done()
 		}()
 	}
@@ -42,11 +40,6 @@ func RunWorkerPool(numWorkers int, imgData *img.ImageData) {
 		tasks <- SobelTask{StartRow: startRow, EndRow: endRow}
 	}
 	close(tasks)
-
-	for i := 0; i < numWorkers; i++ {
-		<-results
-	}
-	close(results)
 
 	wg.Wait()
 }
